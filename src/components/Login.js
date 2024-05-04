@@ -9,22 +9,46 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const result = await authenticateUser(username, password);
-      navigate('/home');
+      const response = await fetch('http://localhost:8080/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+  
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      console.log(data.role)
+      navigate(data.role === 'ADMIN' ? '/admin-dashboard' : '/user-dashboard');
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Login failed:', error.message);
     }
   };
 
-  const authenticateUser = (username, password) => {
-    console.log('Authenticating', username, password);
-    return new Promise((resolve, reject) => {
-      if (username === 'admin' && password === 'password') {
-        resolve();
-      } else {
-        reject(new Error('Invalid credentials'));
+  const authenticateUser = async (username, password) => {
+    try {
+      const response = await fetch('http://localhost:8080/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
       }
-    });
+      
+      const data = await response.json(); 
+      return data; 
+    } catch (error) {
+      throw error;
+    }
   };
 
   return (
@@ -33,11 +57,21 @@ const Login = () => {
       <form onSubmit={handleLogin}>
         <div>
           <label htmlFor="username">Username:</label>
-          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <input
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </div>
         <div>
           <label htmlFor="password">Password:</label>
-          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <button type="submit">Login</button>
       </form>
