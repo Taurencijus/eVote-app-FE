@@ -1,11 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Home from './components/Home';
 import Login from './components/Login';
 import Registration from './components/Registration';
 import './App.css';
 import AdminDashboard from './components/AdminDashboard';
-import EditUserModal from './components/EditUserModal';
+import CreateElection from './components/CreateElection';
+import EditElection from './components/EditElection';
 
 function App() {
   return (
@@ -24,8 +27,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} /> 
-          <Route path="/edit-user" element={<EditUserModal />} />
+          <Route path="/create-election" element={<CreateElection />} />
+          <Route path="/edit-election" element={<EditElection />} />
+          <Route path="/edit-election/:electionId" element={<EditElection />} />
         </Routes>
+        <ToastContainer />
       </div>
     </Router>
   );

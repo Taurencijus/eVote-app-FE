@@ -23,7 +23,6 @@ const Login = () => {
   
       const data = await response.json();
       localStorage.setItem('token', data.token);
-      console.log(data.role)
       navigate(data.role === 'ADMIN' ? '/admin-dashboard' : '/user-dashboard');
     } catch (error) {
       console.error('Login failed:', error.message);
