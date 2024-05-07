@@ -90,7 +90,7 @@ const CreateElection = () => {
 
 
 
-  return (
+return (
     <form onSubmit={handleSubmit}>
       <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" />
       <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description"></textarea>
@@ -114,26 +114,25 @@ const CreateElection = () => {
         maxTime={new Date().setHours(23, 45, 0, 0)}
         dateFormat="MMMM d, yyyy h:mm aa"
       />
-      {voteOptions.map((voteOption, index) => (
-          <div key={index}>
-            <input
-              type="text"
-              value={voteOption.name}
-              onChange={e => handleVoteOptionChange(index, 'name', e.target.value)}
-              placeholder="Vote Option Name"
-            />
-            <textarea
-              value={voteOption.description}
-              onChange={e => handleVoteOptionChange(index, 'description', e.target.value)}
-              placeholder="Vote Option Description"
-            />
-            <button type="button" onClick={() => handleRemoveVoteOption(index)}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={handleAddVoteOption}>Add Vote Option</button>
-        <button type="submit">Create Election</button>
+      {voteOptions && Array.isArray(voteOptions) && voteOptions.map((voteOption, index) => (
+        <div key={index}>
+          <input
+            type="text"
+            value={voteOption.name}
+            onChange={e => handleVoteOptionChange(index, 'name', e.target.value)}
+            placeholder="Vote Option Name"
+          />
+          <textarea
+            value={voteOption.description}
+            onChange={e => handleVoteOptionChange(index, 'description', e.target.value)}
+            placeholder="Vote Option Description"
+          />
+          <button type="button" onClick={() => handleRemoveVoteOption(index)}>Remove</button>
+        </div>
+      ))}
+      <button type="button" onClick={handleAddVoteOption}>Add Vote Option</button>
+      <button type="submit">Create Election</button>
     </form>
-  );
-};
+  )};
 
 export default CreateElection;

@@ -9,6 +9,8 @@ import './App.css';
 import AdminDashboard from './components/AdminDashboard';
 import CreateElection from './components/CreateElection';
 import EditElection from './components/EditElection';
+import UserDashboard from './components/UserDashboard';
+import VoteElection from './components/VoteElection';
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
           <Route path="/create-election" element={<CreateElection />} />
           <Route path="/edit-election" element={<EditElection />} />
           <Route path="/edit-election/:electionId" element={<EditElection />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} /> 
+          <Route path="/vote-election/:electionId" element={<VoteElection />} />
         </Routes>
         <ToastContainer />
       </div>

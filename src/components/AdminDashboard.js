@@ -11,6 +11,8 @@ const AdminDashboard = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [elections, setElections] = useState([]);
+  const [userSearch, setUserSearch] = useState('');
+  const [electionSearch, setElectionSearch] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -149,11 +151,17 @@ return (
     <h1>Admin Dashboard</h1>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <h2>Elections List</h2>
+      <input
+        type="text"
+        placeholder="Search Elections"
+        value={electionSearch}
+        onChange={e => setElectionSearch(e.target.value)}
+      />
       <button onClick={handleCreateElection} style={{ padding: '10px', fontSize: '16px' }}>Create New Election</button>
     </div>
-    {elections.length > 0 ? (
+    {elections.filter(election => election.title.toLowerCase().includes(electionSearch.toLowerCase())).length > 0 ? (
       <ul>
-        {elections.map((election) => (
+        {elections.filter(election => election.title.toLowerCase().includes(electionSearch.toLowerCase())).map((election) => (
           <li key={election.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {election.title} - Starts: {new Date(election.startTime).toLocaleString()} - Ends: {new Date(election.endTime).toLocaleString()}
            <div>
@@ -168,6 +176,12 @@ return (
     )}
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <h2>User List</h2>
+      <input
+        type="text"
+        placeholder="Search Users"
+        value={userSearch}
+        onChange={e => setUserSearch(e.target.value)}
+      />
       <button onClick={() => setCreateModalOpen(true)} style={{ padding: '10px', fontSize: '16px' }}>Create New User</button>
       {isCreateModalOpen && (
         <CreateUserModal
@@ -177,9 +191,9 @@ return (
         />
       )}
     </div>
-    {users.length > 0 ? (
+    {users.filter(user => user.username.toLowerCase().includes(userSearch.toLowerCase())).length > 0 ? (
       <ul>
-        {users.map(user => (
+        {users.filter(user => user.username.toLowerCase().includes(userSearch.toLowerCase())).map(user => (
           <li key={user.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>{user.username} - {user.email} - {user.type}</span>
             <div>

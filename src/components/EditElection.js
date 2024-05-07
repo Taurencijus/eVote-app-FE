@@ -20,17 +20,14 @@ const EditElection = () => {
         const token = localStorage.getItem('token');
         const headers = { 'Authorization': `Bearer ${token}` };
   
-        // Fetch election details
         const electionResponse = await fetch(`http://localhost:8080/api/elections/${electionId}`, { headers });
         if (!electionResponse.ok) throw new Error('Failed to fetch election details.');
         const electionData = await electionResponse.json();
   
-        // Fetch vote options associated with the election
         const voteOptionsResponse = await fetch(`http://localhost:8080/api/vote-options/by-election/${electionId}`, { headers });
         if (!voteOptionsResponse.ok) throw new Error('Failed to fetch vote options.');
         const voteOptionsData = await voteOptionsResponse.json();
   
-        // Setting the state with fetched data
         setElection({
           ...electionData,
           startTime: new Date(electionData.startTime),
@@ -96,11 +93,10 @@ const EditElection = () => {
       description: election.description,
       startTime: election.startTime.toISOString(),
       endTime: election.endTime.toISOString(),
-      voteOptions: election.voteOptions.filter(option => option.id) // Only send existing options to update
+      voteOptions: election.voteOptions.filter(option => option.id)
     };
   
     try {
-      // Update the election and existing vote options
       const electionResponse = await fetch(`http://localhost:8080/admin_only/api/elections/${electionId}`, {
         method: 'PUT',
         headers: {
@@ -115,7 +111,6 @@ const EditElection = () => {
         throw new Error(errorData.message || 'Failed to update election');
       }
   
-      // Handle new vote options creation
       const newVoteOptions = election.voteOptions.filter(option => !option.id);
       const createVoteOptionPromises = newVoteOptions.map(option =>
         fetch(`http://localhost:8080/admin_only/api/vote-options/by-election/${electionId}`, {
