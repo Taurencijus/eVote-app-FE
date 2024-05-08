@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import EditUserModal from './EditUserModal';
 import CreateUserModal from './CreateUserModal';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -15,6 +17,39 @@ const AdminDashboard = () => {
   const [electionSearch, setElectionSearch] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      toast.error("Access denied. Admins only.");
+      navigate('/login');
+      return;
+    }
+
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const responses = await Promise.all([
+          fetch('http://localhost:8080/api/elections', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('http://localhost:8080/admin_only/api/users', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
+
+        if (!responses[0].ok || !responses[1].ok) throw new Error('Failed to fetch data');
+        
+        const electionsData = await responses[0].json();
+        const usersData = await responses[1].json();
+        setElections(electionsData);
+        setUsers(usersData);
+      } catch (error) {
+        toast.error('Failed to load data. Please try again later.');
+      }
+    };
+
+    fetchData();
+  }, [user, navigate]);
+  
   useEffect(() => {
     const fetchElections = async () => {
       try {
@@ -28,7 +63,7 @@ const AdminDashboard = () => {
         const data = await response.json();
         setElections(data);
       } catch (error) {
-        console.error('Error fetching elections:', error);
+        toast.error('Failed to load elections. Please try again later.')
       }
     };
   
@@ -49,7 +84,7 @@ const AdminDashboard = () => {
         const data = await response.json();
         setUsers(data);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        toast.error('Failed to load users. Please try again later.')
       }
     };
     fetchUsers();
@@ -67,8 +102,9 @@ const AdminDashboard = () => {
       });
       if (!response.ok) throw new Error('Failed to delete election');
       setElections(elections.filter(election => election.id !== electionId));
+      toast.success('Election deleted successfully!');
     } catch (error) {
-      console.error('Error deleting election:', error);
+      toast.error('Failed to delete election. Please try again later.')
     }
   };
 
@@ -87,8 +123,9 @@ const AdminDashboard = () => {
       });
       if (!response.ok) throw new Error('Failed to delete user');
       setUsers(users.filter(user => user.id !== userId));
+      toast.success('User deleted successfully!');
     } catch (error) {
-      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user. Please try again later.')
     }
   };
 
@@ -102,6 +139,7 @@ const AdminDashboard = () => {
   };
 
   const saveUser = async (userData) => {
+    try {
     const response = await fetch(`http://localhost:8080/admin_only/api/users/${userData.id}`, {
       method: 'PUT',
       headers: {
@@ -117,6 +155,10 @@ const AdminDashboard = () => {
     const updatedUser = await response.json();
     setUsers(users.map(user => user.id === userData.id ? updatedUser : user));
     closeModal();
+    toast.success('User saved successfully!');
+  } catch (error) {
+    toast.error('Failed to save updated user. Please try again later.')
+  }
   };
 
   const handleCreateUser = async (userData) => {
@@ -130,19 +172,12 @@ const AdminDashboard = () => {
             },
             body: JSON.stringify(userData)
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail);
-        }
-
         const newUser = await response.json();
         setUsers(users => [...users, newUser]);
         setCreateModalOpen(false);
         toast.success('User created successfully!');
     } catch (error) {
-        console.error('Error creating user:', error);
-        toast.error(`Registration failed: ${error}`);
+        toast.error('Failed creating user. Please try again later.');
     }
 };
 
@@ -166,6 +201,7 @@ return (
             {election.title} - Starts: {new Date(election.startTime).toLocaleString()} - Ends: {new Date(election.endTime).toLocaleString()}
            <div>
             <button onClick={() => handleEditElection(election.id)}>Edit</button>
+            <button onClick={() => navigate(`/election-results/${election.id}`)}>View Results</button>
             <button onClick={() => handleDeleteElection(election.id)}>Delete</button>
             </div>
           </li>

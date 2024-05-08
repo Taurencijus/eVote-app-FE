@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const VoteElection = () => {
+  const { user } = useAuth();
   const { electionId } = useParams();
   const navigate = useNavigate();
   const [election, setElection] = useState(null);
@@ -11,17 +15,21 @@ const VoteElection = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!user) {
+      toast.error("Please log in to vote.");
+      navigate('/login');
+      return;
+    }
+
     const fetchElectionAndOptions = async () => {
       setIsLoading(true);
       try {
         const token = localStorage.getItem('token');
         const headers = { 'Authorization': `Bearer ${token}` };
         const electionResponse = await fetch(`http://localhost:8080/api/elections/${electionId}`, { headers });
-        if (!electionResponse.ok) throw new Error('Failed to fetch election details.');
         const electionData = await electionResponse.json();
 
         const voteOptionsResponse = await fetch(`http://localhost:8080/api/vote-options/by-election/${electionId}`, { headers });
-        if (!voteOptionsResponse.ok) throw new Error('Failed to fetch vote options.');
         const voteOptionsData = await voteOptionsResponse.json();
 
         setElection({
@@ -31,7 +39,7 @@ const VoteElection = () => {
           voteOptions: voteOptionsData
         });
       } catch (error) {
-        console.error('Error fetching election and options:', error.message);
+        toast.error('Failed to load election and vote options');
         setError(error.message);
       } finally {
         setIsLoading(false);
@@ -39,7 +47,7 @@ const VoteElection = () => {
     };
 
     fetchElectionAndOptions();
-  }, [electionId]);
+  }, [electionId, user, navigate]);
 
   const handleSelectOption = (optionId) => {
     if (!voteSubmitted) {
@@ -61,17 +69,12 @@ const VoteElection = () => {
           body: JSON.stringify({ userId: localStorage.getItem('userId') })
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to submit vote');
-        }
-
         setVoteSubmitted(true);
         setError('');
-        console.log('Vote submitted successfully!');
-        navigate('/user-dashboard'); 
+        toast.success('Vote submitted successfully!');
+        navigate('/user-dashboard');
       } catch (error) {
-        console.error('An error occurred:', error);
+        toast.error('Vote failed. Please try again later.');
         setError(error.message);
       } finally {
         setIsLoading(false);

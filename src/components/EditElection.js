@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditElection = () => {
   const { electionId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [election, setElection] = useState({
     title: '',
     description: '',
@@ -15,6 +19,12 @@ const EditElection = () => {
   });
 
   useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      toast.error("Access Denied: Only admins can edit elections.");
+      navigate('/');
+      return;
+    }
+
     const fetchElectionAndOptions = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -40,7 +50,7 @@ const EditElection = () => {
         });
   
       } catch (error) {
-        console.error('Error fetching election and options:', error.message);
+        toast.error('Failed to fetch election and vote options. Please try again later.');
       }
     };
   
@@ -131,10 +141,10 @@ const EditElection = () => {
         }
       });
   
-      console.log('Election and all vote options updated successfully!');
+      toast.success('Election and all vote options updated successfully!');
       navigate('/admin-dashboard');
     } catch (error) {
-      console.error('An error occurred:', error);
+      toast.error('Failed to submit election changes. Please try again later.')
     }
   };
 

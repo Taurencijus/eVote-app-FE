@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
-const EditUserModal = ({ isOpen, onClose, user, onSave }) => {
+const EditUserModal = ({ isOpen, onClose, user: propUser, onSave }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      toast.error("Access Denied: Only admins can edit users.");
+      navigate('/');
+      return;
+    }
+  }, [user, navigate]);
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [type, setType] = useState('');
 
   useEffect(() => {
-    if (user && isOpen) {
-      setUsername(user.username);
-      setEmail(user.email);
-      setType(user.type);
+    if (propUser && isOpen) {
+      setUsername(propUser.username);
+      setEmail(propUser.email);
+      setType(propUser.type);
     }
-  }, [user, isOpen]);
+  }, [propUser, isOpen]);
 
   if (!isOpen) return null;
 
@@ -19,8 +34,8 @@ const EditUserModal = ({ isOpen, onClose, user, onSave }) => {
     event.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const updatedUser = { id: user.id, username, email, type };
-      const response = await fetch(`http://localhost:8080/admin_only/api/users/${user.id}`, {
+      const updatedUser = { id: propUser.id, username, email, type };
+      const response = await fetch(`http://localhost:8080/admin_only/api/users/${propUser.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -28,13 +43,10 @@ const EditUserModal = ({ isOpen, onClose, user, onSave }) => {
         },
         body: JSON.stringify(updatedUser)
       });
-      if (!response.ok) {
-        throw new Error('Failed to update user');
-      }
       onSave(await response.json());
       onClose(); 
     } catch (error) {
-      console.error('Error updating user:', error.message);
+      toast.error('Failed to update user. Please try again later.');
     }
   };
 

@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../context/AuthContext';
 
 const Registration = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      toast.info("You are already registered and logged in.");
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleRegistration = async (e) => {
     e.preventDefault();
@@ -19,18 +28,11 @@ const Registration = () => {
         body: JSON.stringify(userData)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail);
-      }
-
       const data = await response.json();
       toast.success('Registration successful!');
-      console.log('Registration successful', data);
       navigate('/login');
     } catch (error) {
-      toast.error(`Registration failed: ${error}`);
-      console.error('Registration failed:', error);
+      toast.error('Registration failed.');
     }
   };
 

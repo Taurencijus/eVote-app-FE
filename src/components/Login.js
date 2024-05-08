@@ -1,54 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
+  const { user, login } = useAuth();
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      console.log('Redirecting because user is:', user);
+      toast.info("You are already logged in. Redirecting to your dashboard...");
+      navigate(user.role === 'ADMIN' ? '/admin-dashboard' : '/user-dashboard');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-  
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      navigate(data.role === 'ADMIN' ? '/admin-dashboard' : '/user-dashboard');
+        const response = await fetch('http://localhost:8080/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        login(data);
+        localStorage.setItem('token', data.token);
+        navigate(data.role === 'ADMIN' ? '/admin-dashboard' : '/user-dashboard');
+        toast.success('Loging successful!');
     } catch (error) {
-      console.error('Login failed:', error.message);
+        toast.error('Login failed. Check if username and password are correct.');
     }
-  };
-
-  const authenticateUser = async (username, password) => {
-    try {
-      const response = await fetch('http://localhost:8080/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Invalid credentials');
-      }
-      
-      const data = await response.json(); 
-      return data; 
-    } catch (error) {
-      throw error;
-    }
-  };
+};
 
   return (
     <div>
