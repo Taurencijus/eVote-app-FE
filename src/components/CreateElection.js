@@ -57,7 +57,25 @@ const CreateElection = () => {
                 },
                 body: JSON.stringify(electionData)
             });
+            const election = await response.json();
             if (!response.ok) throw new Error('Failed to create election');
+
+            const voteOptionPromises = voteOptions.map((voteOption) =>
+              fetch(`http://localhost:8080/admin_only/api/vote-options/by-election/${election.id}`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('token')}`
+                  },
+                  body: JSON.stringify({ name: voteOption.name, description: voteOption.description })
+              })
+          );
+
+          const results = await Promise.all(voteOptionPromises);
+          results.forEach(async (result, index) => {
+              if (!result.ok) throw new Error('Failed to create elections');
+          });
+
             toast.success('Election created successfully!');
             navigate('/admin-dashboard');
         } catch (error) {

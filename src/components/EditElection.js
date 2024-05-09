@@ -115,7 +115,7 @@ const EditElection = () => {
       description: election.description,
       startTime: election.startTime.toISOString(),
       endTime: election.endTime.toISOString(),
-      voteOptions: election.voteOptions.filter(option => option.id)
+      voteOptionDtos: election.voteOptions.filter(option => option.id)
     };
   
     try {
