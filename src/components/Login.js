@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Button, Input, Heading, Box, FormControl, FormLabel } from '@chakra-ui/react';
 
 const Login = () => {
   const { user, login } = useAuth();
@@ -28,7 +29,6 @@ const Login = () => {
             },
             body: JSON.stringify({ username, password })
         });
-        
         const data = await response.json();
         login(data);
         localStorage.setItem('token', data.token);
@@ -39,32 +39,32 @@ const Login = () => {
     }
 };
 
-  return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
-};
+return (
+  <Box p={5}>
+    <Heading mb={6}>Login</Heading>
+    <form onSubmit={handleLogin}>
+      <FormControl id="username" isRequired>
+        <FormLabel>Username:</FormLabel>
+        <Input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </FormControl>
+      <FormControl id="password" isRequired mt={4}>
+        <FormLabel>Password:</FormLabel>
+        <Input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </FormControl>
+      <Button type="submit" colorScheme="blue" size="lg" mt={4}>
+        Login
+      </Button>
+    </form>
+  </Box>
+)};
 
 export default Login;

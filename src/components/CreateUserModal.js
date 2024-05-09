@@ -3,6 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  FormControl,
+  FormLabel,
+  Input,
+  Select,
+  Button,
+  ModalFooter
+} from '@chakra-ui/react';
 
 const CreateUserModal = ({ isOpen, onClose, onSave }) => {
   const { user } = useAuth();
@@ -25,29 +39,45 @@ const CreateUserModal = ({ isOpen, onClose, onSave }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     onSave({ username, password, email, type });
-    onClose();
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <span className="close" onClick={onClose}>&times;</span>
-        <form onSubmit={handleSubmit}>
-          <label>Username:</label>
-          <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
-          <label>Password:</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
-          <label>Email:</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-          <label>Type:</label>
-          <select value={type} onChange={e => setType(e.target.value)}>
-            <option value="USER">User</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-          <button type="submit">Create User</button>
-        </form>
-      </div>
-    </div>
+    <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalOverlay />
+    <ModalContent>
+      <ModalHeader>Create User</ModalHeader>
+      <ModalCloseButton />
+      <form onSubmit={handleSubmit}>
+        <ModalBody>
+          <FormControl>
+            <FormLabel>Username</FormLabel>
+            <Input type="text" value={username} onChange={e => setUsername(e.target.value)} />
+          </FormControl>
+          <FormControl mt={4}>
+            <FormLabel>Password</FormLabel>
+            <Input type="password" value={password} onChange={e => setPassword(e.target.value)} />
+          </FormControl>
+          <FormControl mt={4}>
+            <FormLabel>Email</FormLabel>
+            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          </FormControl>
+          <FormControl mt={4}>
+            <FormLabel>Type</FormLabel>
+            <Select value={type} onChange={e => setType(e.target.value)}>
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+            </Select>
+          </FormControl>
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} type="submit">
+            Create User
+          </Button>
+          <Button onClick={onClose}>Cancel</Button>
+        </ModalFooter>
+      </form>
+    </ModalContent>
+  </Modal>
   );
 };
 

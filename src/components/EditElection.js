@@ -5,6 +5,18 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Button,
+  Box,
+  VStack,
+  HStack,
+  Container,
+  Spacer
+} from '@chakra-ui/react';
 
 const EditElection = () => {
   const { electionId } = useParams();
@@ -149,33 +161,100 @@ const EditElection = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="title" value={election.title} onChange={handleInputChange} placeholder="Title" />
-      <textarea name="description" value={election.description} onChange={handleInputChange} placeholder="Description" />
-      <DatePicker selected={election.startTime} onChange={date => handleDateChange('startTime', date)} />
-      <DatePicker selected={election.endTime} onChange={date => handleDateChange('endTime', date)} />
-      {election.voteOptions.map((option, index) => (
-        <div key={index}>
-          <input
+    <Container maxW="container.md" p={5}>
+    <VStack spacing={4} align="stretch">
+      <form onSubmit={handleSubmit}>
+        <FormControl isRequired>
+          <FormLabel>Title</FormLabel>
+          <Input
             type="text"
-            name="name"
-            value={option.name}
-            onChange={e => handleVoteOptionChange(e, index, 'name')}
-            placeholder="Vote Option Name"
+            value={election.title}
+            onChange={handleInputChange}
+            name="title"
+            placeholder="Title of the election"
           />
-          <input
-            type="text"
+        </FormControl>
+
+        <FormControl isRequired>
+          <FormLabel>Description</FormLabel>
+          <Textarea
+            value={election.description}
+            onChange={handleInputChange}
             name="description"
-            value={option.description}
-            onChange={e => handleVoteOptionChange(e, index, 'description')}
-            placeholder="Vote Option Description"
+            placeholder="Brief description of the election"
           />
-          <button type="button" onClick={() => handleRemoveVoteOption(index)}>Remove</button>
-        </div>
-      ))}
-      <button type="button" onClick={handleAddVoteOption}>Add Vote Option</button>
-      <button type="submit">Save Changes</button>
-    </form>
+        </FormControl>
+
+        <HStack spacing={4}>
+          <FormControl isRequired>
+            <FormLabel>Start Time</FormLabel>
+            <DatePicker
+              selected={election.startTime}
+              onChange={date => handleDateChange('startTime', date)}
+              showTimeSelect
+              timeIntervals={15}
+              minDate={new Date()}
+              minTime={new Date()}
+              maxTime={new Date().setHours(23, 45)}
+              dateFormat="MMMM d, yyyy h:mm aa"
+              customInput={<Input />}
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>End Time</FormLabel>
+            <DatePicker
+              selected={election.endTime}
+              onChange={date => handleDateChange('endTime', date)}
+              showTimeSelect
+              timeIntervals={15}
+              minDate={election.startTime}
+              minTime={new Date()}
+              maxTime={new Date().setHours(23, 45)}
+              dateFormat="MMMM d, yyyy h:mm aa"
+              customInput={<Input />}
+            />
+          </FormControl>
+        </HStack>
+
+        <VStack spacing={4} mt={4}>
+          {election.voteOptions.map((option, index) => (
+            <Box key={index} w="full" p={5} shadow="md" borderWidth="1px" borderRadius="md" overflow="hidden">
+              <VStack spacing={4}>
+                <FormControl isRequired>
+                  <FormLabel>Vote Option Name</FormLabel>
+                  <Input
+                    type="text"
+                    name="name"
+                    value={option.name}
+                    onChange={e => handleVoteOptionChange(e, index, 'name')}
+                    placeholder="Name of the vote option"
+                  />
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Vote Option Description</FormLabel>
+                  <Textarea
+                    name="description"
+                    value={option.description}
+                    onChange={e => handleVoteOptionChange(e, index, 'description')}
+                    placeholder="Description of the vote option"
+                    size="sm"
+                  />
+                </FormControl>
+              </VStack>
+              <Spacer mt={2} />
+              <Button colorScheme="red" onClick={() => handleRemoveVoteOption(index)}>Remove</Button>
+            </Box>
+          ))}
+        </VStack>
+        <HStack mt={4}>
+          <Button colorScheme="blue" onClick={handleAddVoteOption}>Add Vote Option</Button>
+          <Button colorScheme="green" type="submit">Save Changes</Button>
+          <Button colorScheme="gray" onClick={() => navigate('/admin-dashboard')}>Cancel</Button>
+        </HStack>
+      </form>
+    </VStack>
+  </Container>
   );
 };
 

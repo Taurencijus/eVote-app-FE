@@ -3,6 +3,20 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  FormControl,
+  FormLabel,
+  Input,
+  Select,
+  Button,
+  ModalFooter
+} from '@chakra-ui/react';
 
 const EditUserModal = ({ isOpen, onClose, user: propUser, onSave }) => {
   const { user } = useAuth();
@@ -51,33 +65,48 @@ const EditUserModal = ({ isOpen, onClose, user: propUser, onSave }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <span className="close" onClick={onClose}>&times;</span>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Edit User</ModalHeader>
+        <ModalCloseButton />
         <form onSubmit={handleSubmit}>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <label htmlFor="type">User Type:</label>
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="USER">User</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-          <button type="submit">Save</button>
+          <ModalBody>
+            <FormControl>
+              <FormLabel htmlFor="username">Username</FormLabel>
+              <Input
+                type="text"
+                id="username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel htmlFor="email">Email</FormLabel>
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel htmlFor="type">User Type</FormLabel>
+              <Select id="type" value={type} onChange={e => setType(e.target.value)}>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+              </Select>
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} type="submit">
+              Save
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
         </form>
-      </div>
-    </div>
+      </ModalContent>
+    </Modal>
   );
 };
 

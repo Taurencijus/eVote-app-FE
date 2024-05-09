@@ -51,6 +51,14 @@ npm start
 ```
 This will start the React application on 'localhost:3000'.
 
+5. **Configure the frontend UI:**
+
+Install the following libraries for intended UI:
+```
+npm i @chakra-ui/react @emotion/react @emotion/styled framer-motion
+npm install react-toastify
+```
+
 ### Configuring the Database
 
 Create a new MySQL database named 'evote' and configure the 'application.properties' file in the backend's 'src/main/resources' folder with your MySQL user and password.

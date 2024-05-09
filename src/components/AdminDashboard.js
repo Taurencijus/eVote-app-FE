@@ -4,6 +4,19 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import EditUserModal from './EditUserModal';
 import CreateUserModal from './CreateUserModal';
+import {
+  Box,
+  Button,
+  Heading,
+  Input,
+  List,
+  ListItem,
+  Stack,
+  VStack,
+  Text,
+  Container,
+  useColorModeValue
+} from '@chakra-ui/react';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AdminDashboard = () => {
@@ -149,8 +162,7 @@ const AdminDashboard = () => {
       body: JSON.stringify(userData)
     });
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to update user');
+      throw new Error('Failed to update user');
     }
     const updatedUser = await response.json();
     setUsers(users.map(user => user.id === userData.id ? updatedUser : user));
@@ -172,6 +184,9 @@ const AdminDashboard = () => {
             },
             body: JSON.stringify(userData)
         });
+        if (!response.ok) {
+          throw new Error('Failed to save user');
+        }
         const newUser = await response.json();
         setUsers(users => [...users, newUser]);
         setCreateModalOpen(false);
@@ -182,75 +197,84 @@ const AdminDashboard = () => {
 };
 
 return (
-  <div>
-    <h1>Admin Dashboard</h1>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <h2>Elections List</h2>
-      <input
-        type="text"
-        placeholder="Search Elections"
-        value={electionSearch}
-        onChange={e => setElectionSearch(e.target.value)}
-      />
-      <button onClick={handleCreateElection} style={{ padding: '10px', fontSize: '16px' }}>Create New Election</button>
-    </div>
-    {elections.filter(election => election.title.toLowerCase().includes(electionSearch.toLowerCase())).length > 0 ? (
-      <ul>
-        {elections.filter(election => election.title.toLowerCase().includes(electionSearch.toLowerCase())).map((election) => (
-          <li key={election.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {election.title} - Starts: {new Date(election.startTime).toLocaleString()} - Ends: {new Date(election.endTime).toLocaleString()}
-           <div>
-            <button onClick={() => handleEditElection(election.id)}>Edit</button>
-            <button onClick={() => navigate(`/election-results/${election.id}`)}>View Results</button>
-            <button onClick={() => handleDeleteElection(election.id)}>Delete</button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>No elections to display</p>
-    )}
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <h2>User List</h2>
-      <input
-        type="text"
-        placeholder="Search Users"
-        value={userSearch}
-        onChange={e => setUserSearch(e.target.value)}
-      />
-      <button onClick={() => setCreateModalOpen(true)} style={{ padding: '10px', fontSize: '16px' }}>Create New User</button>
-      {isCreateModalOpen && (
-        <CreateUserModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setCreateModalOpen(false)}
-          onSave={handleCreateUser}
-        />
-      )}
-    </div>
-    {users.filter(user => user.username.toLowerCase().includes(userSearch.toLowerCase())).length > 0 ? (
-      <ul>
-        {users.filter(user => user.username.toLowerCase().includes(userSearch.toLowerCase())).map(user => (
-          <li key={user.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>{user.username} - {user.email} - {user.type}</span>
-            <div>
-              <button onClick={() => openModal(user)}>Edit</button>
-              <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>No users to display</p>
-    )}
-    {isModalOpen && selectedUser && (
-      <EditUserModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        user={selectedUser}
-        onSave={saveUser}
-      />
-    )}
-  </div>
+  <Container maxW="container.xl" p={5}>
+      <VStack spacing={5} align="center">
+        <Box w="full" bg={useColorModeValue('gray.100', 'gray.700')} p={8} borderRadius="lg" boxShadow="lg">
+          <Heading mb={4} textAlign="center">Admin Dashboard</Heading>
+          
+          <Box>
+            <Heading size="md" mb={4}>Elections List</Heading>
+            <Stack direction="row" mb={4} align="center">
+              <Input
+                placeholder="Search Elections"
+                value={electionSearch}
+                onChange={e => setElectionSearch(e.target.value)}
+              />
+              <Button colorScheme="blue" onClick={handleCreateElection}>Create New Election</Button>
+            </Stack>
+            <List spacing={3} maxH="lg" overflowY="auto">
+              {elections.filter(election => election.title.toLowerCase().includes(electionSearch.toLowerCase())).map((election) => (
+                <ListItem key={election.id} bg="white" p={5} borderRadius="md">
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Text fontSize="md">
+                      {election.title} - Starts: {new Date(election.startTime).toLocaleString()} - Ends: {new Date(election.endTime).toLocaleString()}
+                    </Text>
+                    <Stack direction="row" spacing={2}>
+                      <Button colorScheme="teal" onClick={() => handleEditElection(election.id)}>Edit</Button>
+                      <Button colorScheme="green" onClick={() => navigate(`/election-results/${election.id}`)}>View Results</Button>
+                      <Button colorScheme="red" onClick={() => handleDeleteElection(election.id)}>Delete</Button>
+                    </Stack>
+                  </Stack>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          <Box mt={10}>
+            <Heading size="md" mb={4}>User List</Heading>
+            <Stack direction="row" mb={4} align="center">
+              <Input
+                placeholder="Search Users"
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+              />
+              <Button colorScheme="blue" onClick={() => setCreateModalOpen(true)}>Create New User</Button>
+            </Stack>
+            <List spacing={3} maxH="lg" overflowY="auto">
+              {users.filter(user => user.username.toLowerCase().includes(userSearch.toLowerCase())).map(user => (
+                <ListItem key={user.id} bg="white" p={5} borderRadius="md">
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Text fontSize="md">{user.username} - {user.email} - {user.type}</Text>
+                    <Stack direction="row" spacing={2}>
+                      <Button colorScheme="teal" onClick={() => openModal(user)}>Edit</Button>
+                      <Button colorScheme="red" onClick={() => handleDeleteUser(user.id)}>Delete</Button>
+                    </Stack>
+                  </Stack>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          {isCreateModalOpen && (
+            <CreateUserModal
+              isOpen={isCreateModalOpen}
+              onClose={() => setCreateModalOpen(false)}
+              onSave={handleCreateUser}
+            />
+          )}
+
+          {isModalOpen && selectedUser && (
+            <EditUserModal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              user={selectedUser}
+              onSave={saveUser}
+            />
+          )}
+
+        </Box>
+      </VStack>
+    </Container>
 )};
 
 export default AdminDashboard;

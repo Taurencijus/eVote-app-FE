@@ -3,6 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {
+  Box,
+  Button,
+  Container,
+  VStack,
+  Heading,
+  SimpleGrid,
+  Text
+} from '@chakra-ui/react';
 
 const VoteElection = () => {
   const { user } = useAuth();
@@ -32,6 +41,7 @@ const VoteElection = () => {
         const voteOptionsResponse = await fetch(`http://localhost:8080/api/vote-options/by-election/${electionId}`, { headers });
         const voteOptionsData = await voteOptionsResponse.json();
 
+        if(!electionResponse.ok || !voteOptionsResponse.ok) throw new Error('Failed to load election and vote options');
         setElection({
           ...electionData,
           startTime: new Date(electionData.startTime),
@@ -91,26 +101,50 @@ const VoteElection = () => {
   }
 
   return (
-    <div>
-      <h1>{election?.title}</h1>
-      <p>{election?.description}</p>
-      <div>
-        {election?.voteOptions.map(option => (
-          <div key={option.id} style={{ margin: '10px', padding: '10px', border: selectedOption === option.id ? '2px solid green' : '1px solid #ccc' }}>
-            <h3>{option.name}</h3>
-            <p>{option.description}</p>
+    <Container maxW="container.md" p={5} centerContent>
+  <VStack spacing={4} align="stretch">
+    <Box textAlign="center">
+      <Heading as="h1" mb={4}>{election?.title}</Heading>
+      <Text fontSize="lg">{election?.description}</Text>
+    </Box>
+    <SimpleGrid columns={1} spacing={5}>
+      {election?.voteOptions.map(option => (
+        <Box
+          key={option.id}
+          p={5}
+          shadow="md"
+          borderWidth="1px"
+          borderRadius="lg"
+          overflow="hidden"
+          maxW="640px"
+          w="full"
+          bg={selectedOption === option.id ? "green.100" : "white"}
+        >
+          <VStack align="stretch">
+            <Heading as="h3" size="md">{option.name}</Heading>
+            <Text>{option.description}</Text>
             {voteSubmitted ? (
-              <p>Vote submitted for this option!</p>
+              <Text color="green.500">Vote submitted for this option!</Text>
             ) : (
-              <button onClick={() => handleSelectOption(option.id)}>Vote</button>
+              <Button colorScheme="blue" onClick={() => handleSelectOption(option.id)}>Vote</Button>
             )}
-          </div>
-        ))}
-      </div>
-      {selectedOption && !voteSubmitted && (
-        <button onClick={handleSubmitVote} style={{ marginTop: '20px' }}>Submit Vote</button>
-      )}
-    </div>
+          </VStack>
+        </Box>
+      ))}
+    </SimpleGrid>
+    {selectedOption && !voteSubmitted && (
+      <Button
+        colorScheme="green"
+        size="lg"
+        mt={4}
+        w={["full", "auto"]}
+        onClick={handleSubmitVote}
+      >
+        Submit Vote
+      </Button>
+    )}
+  </VStack>
+</Container>
   );
 };
 

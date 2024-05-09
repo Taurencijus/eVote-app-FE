@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {
+    Box,
+    Container,
+    VStack,
+    Text,
+    Heading
+  } from '@chakra-ui/react';
 
 const ElectionResults = () => {
   const { electionId } = useParams();
   const [election, setElection] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +36,7 @@ const ElectionResults = () => {
                 ...option,
                 votes: resultsData[option.id] || 0
             }));
+            if(!electionResponse.ok || !voteOptionsResponse.ok || !resultsResponse.ok) throw new Error('Failed to load results');
     
             setElection({
                 ...electionData,
@@ -39,7 +48,6 @@ const ElectionResults = () => {
 
         } catch (error) {
             toast.error('Failed to load results. Please try again later.')
-            setError('Failed to load results');
         } 
     };
 
@@ -52,17 +60,21 @@ const ElectionResults = () => {
   if (!election) return <div>No election data available.</div>;
 
   return (
-    <div>
-      <h1>Results for: {election.title}</h1>
-      <p>{election.description}</p>
+    <Container maxW="container.md" p={5}>
+    <VStack spacing={4} align="stretch">
+      <Heading as="h1" size="xl" textAlign="center">Results for: {election.title}</Heading>
+      <Text fontSize="lg" my={4}>{election.description}</Text>
       {election.voteOptions.map(option => (
-        <div key={option.id} style={{ margin: '10px', padding: '10px', border: '1px solid #ccc' }}>
-          <h3>{option.name}</h3>
-          <p>{option.description}</p>
-          <p>Votes: {option.votes}</p>
-        </div>
+        <Box key={option.id} p={5} shadow="md" borderWidth="1px" borderRadius="md" overflow="hidden">
+          <VStack spacing={3}>
+            <Heading as="h3" size="md">{option.name}</Heading>
+            <Text>{option.description}</Text>
+            <Text fontWeight="bold">Votes: {option.votes}</Text>
+          </VStack>
+        </Box>
       ))}
-    </div>
+    </VStack>
+  </Container>
   );
 };
 

@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../context/AuthContext';
+import {
+  Container,
+  VStack,
+  Heading,
+  FormControl,
+  FormLabel,
+  Input,
+  Button
+} from '@chakra-ui/react';
+
 
 const Registration = () => {
   const { user } = useAuth();
@@ -28,49 +38,63 @@ const Registration = () => {
         body: JSON.stringify(userData)
       });
 
-      const data = await response.json();
-      toast.success('Registration successful!');
-      navigate('/login');
+      if(!response.ok) throw new Error('Registration failed')       
+        toast.success('Registration successful!');
+        navigate('/login');     
     } catch (error) {
       toast.error('Registration failed.');
     }
   };
 
   return (
-    <div>
-      <h2>Registration</h2>
-      <form onSubmit={handleRegistration}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Register</button>
-      </form>
-      <ToastContainer position="top-center" autoClose={5000} />
-    </div>
+    <Container centerContent p={6}>
+  <VStack spacing={4} align="stretch" w="full" maxW="md">
+    <Heading as="h2" size="lg" textAlign="center">Registration</Heading>
+    <form onSubmit={handleRegistration}>
+      <FormControl isRequired>
+        <FormLabel htmlFor="username">Username:</FormLabel>
+        <Input
+          id="username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your username"
+        />
+      </FormControl>
+
+      <FormControl isRequired mt={4}>
+        <FormLabel htmlFor="email">Email:</FormLabel>
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+        />
+      </FormControl>
+
+      <FormControl isRequired mt={4}>
+        <FormLabel htmlFor="password">Password:</FormLabel>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+        />
+      </FormControl>
+
+      <Button
+        mt={6}
+        w="full"
+        colorScheme="blue"
+        type="submit"
+      >
+        Register
+      </Button>
+    </form>
+  </VStack>
+</Container>
   );
 };
 

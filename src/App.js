@@ -15,44 +15,33 @@ import AboutUs from './components/AboutUs';
 import ElectionResults from './components/ElectionResults';
 import './App.css';
 import { useAuth } from './context/AuthContext';
+import { ChakraProvider } from '@chakra-ui/react';
 
 function App() {
   const { user } = useAuth();
 
   return (
-    <Router>
-      <div>
-        <Navigation />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          {user ? (
-            <>
-              <Route path="/login" element={<Navigate replace to="/home" />} />
-              <Route path="/register" element={<Navigate replace to="/home" />} />
-              <Route path="/admin-dashboard" element={user.role === 'ADMIN' ? <AdminDashboard /> : <Navigate replace to="/home" />} />
-              <Route path="/create-election" element={user.role === 'ADMIN' ? <CreateElection /> : <Navigate replace to="/home" />} />
-              <Route path="/edit-election/:electionId" element={user.role === 'ADMIN' ? <EditElection /> : <Navigate replace to="/home" />} />
-              <Route path="/user-dashboard" element={<UserDashboard />} /> 
-              <Route path="/vote-election/:electionId" element={<VoteElection />} />
-              <Route path="/election-results/:electionId" element={<ElectionResults />} />
-            </>
-          ) : (
-            <>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Registration />} />
-              <Route path="/admin-dashboard" element={<Navigate replace to="/login" />} />
-              <Route path="/create-election" element={<Navigate replace to="/login" />} />
-              <Route path="/edit-election/:electionId" element={<Navigate replace to="/login" />} />
-              <Route path="/user-dashboard" element={<Navigate replace to="/login" />} />
-              <Route path="/vote-election/:electionId" element={<Navigate replace to="/login" />} />
-            </>
-          )}
-        </Routes>
-        <ToastContainer />
-      </div>
-    </Router>
+    <ChakraProvider>
+      <Router>
+        <div>
+          <Navigation />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate replace to={user.role === 'ADMIN' ? "/admin-dashboard" : "/user-dashboard"} />} />
+            <Route path="/register" element={!user ? <Registration /> : <Navigate replace to={user.role === 'ADMIN' ? "/admin-dashboard" : "/user-dashboard"} />} />
+            <Route path="/admin-dashboard" element={user?.role === 'ADMIN' ? <AdminDashboard /> : <Navigate replace to="/login" />} />
+            <Route path="/create-election" element={user?.role === 'ADMIN' ? <CreateElection /> : <Navigate replace to="/login" />} />
+            <Route path="/edit-election/:electionId" element={user?.role === 'ADMIN' ? <EditElection /> : <Navigate replace to="/login" />} />
+            <Route path="/user-dashboard" element={user ? <UserDashboard /> : <Navigate replace to="/login" />} />
+            <Route path="/vote-election/:electionId" element={user ? <VoteElection /> : <Navigate replace to="/login" />} />
+            <Route path="/election-results/:electionId" element={user ? <ElectionResults /> : <Navigate replace to="/login" />} />
+          </Routes>
+          <ToastContainer />
+        </div>
+      </Router>
+    </ChakraProvider>
   );
 }
 

@@ -1,10 +1,21 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {
+    Box,
+    Flex,
+    Spacer,
+    Button,
+    useColorModeValue,
+    Image
+  } from '@chakra-ui/react';
 
 const Navigation = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    const bgColor = useColorModeValue('gray.100', 'gray.900');
+    const color = useColorModeValue('black', 'white');
 
     const handleLogout = () => {
         logout();
@@ -12,21 +23,32 @@ const Navigation = () => {
     };
 
     return (
-        <nav>
-            <ul>
-                <li><Link to="/home">Home</Link></li>
-                {!user && <li><Link to="/login">Login</Link></li>}
-                {!user && <li><Link to="/register">Register</Link></li>}
+        <Flex bg={bgColor} p="4" color={color} align="center">
+            <Box p="2">
+                <Image src="evote-logo.png" boxSize="50px" alt="eVote Logo" />
+            </Box>
+            <Spacer />
+            <Box>
+                <Link to="/"><Button colorScheme="teal" variant="ghost">Home</Button></Link>
+                <Link to="/about-us"><Button colorScheme="teal" variant="ghost">About eVote</Button></Link>
                 {user && (
+                    <Link to={user.role === 'ADMIN' ? "/admin-dashboard" : "/user-dashboard"}>
+                        <Button colorScheme="teal" variant="ghost">Dashboard</Button>
+                    </Link>
+                )}
+            </Box>
+            <Spacer />
+            <Box>
+                {user ? (
+                    <Button colorScheme="red" variant="solid" onClick={handleLogout}>Logout</Button>
+                ) : (
                     <>
-                        <li><Link to={user.role === 'ADMIN' ? "/admin-dashboard" : "/user-dashboard"}>Dashboard</Link></li>
-                        <li><Link to="/about-us">About eVote</Link></li>
-                        <li><button onClick={handleLogout}>Logout</button></li>
+                        <Link to="/login"><Button colorScheme="teal" variant="outline">Login</Button></Link>
+                        <Link to="/register"><Button colorScheme="teal" variant="solid">Register</Button></Link>
                     </>
                 )}
-                
-            </ul>
-        </nav>
+            </Box>
+        </Flex>
     );
 };
 
